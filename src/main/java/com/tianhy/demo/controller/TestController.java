@@ -15,13 +15,14 @@ import java.io.IOException;
 @MyController
 @MyRequestMapping("/tianhy")
 public class TestController {
+
     @MyAutowired
     private TestService service;
 
     @MyRequestMapping("/query")
     public void query(HttpServletRequest req, HttpServletResponse resp, @MyRequestParam("name") String name) {
         String result = name;
-        String sname= service.getName(name);
+        String sname= service.getName(result);
         try {
             resp.getWriter().write(sname);
         } catch (IOException e) {

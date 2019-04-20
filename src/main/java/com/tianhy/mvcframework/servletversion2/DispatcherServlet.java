@@ -3,6 +3,7 @@ package com.tianhy.mvcframework.servletversion2;
 import com.tianhy.mvcframework.annotation.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.nutz.json.Json;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -170,7 +171,7 @@ public class DispatcherServlet extends HttpServlet {
             String baseUrl = "";
             if (clazz.isAnnotationPresent(MyRequestMapping.class)) {
                 MyRequestMapping requestMapping = clazz.getAnnotation(MyRequestMapping.class);
-                // query
+                // thy
                 baseUrl = requestMapping.value();
             }
 
@@ -180,6 +181,7 @@ public class DispatcherServlet extends HttpServlet {
                     continue;
                 }
                 MyRequestMapping requestMapping = method.getAnnotation(MyRequestMapping.class);
+
 
                 //优化,避免输入多个 / 或少输入 / 而找不到路径
                 //通过获取到注解的值，与方法上@requestMapping的值拼接，生成一个路径
@@ -218,14 +220,13 @@ public class DispatcherServlet extends HttpServlet {
                 try {
                     //给字段赋值
                     f.set(entry.getValue(), ioc.get(beanName));
+//                    System.out.println(f.get(entry.getValue()));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
-
         }
     }
-
     /**
      * 初始化扫描到的类,为DI作准备
      */
@@ -238,7 +239,6 @@ public class DispatcherServlet extends HttpServlet {
             for (String className : classNames) {
                 //根据类名返回class对象
                 Class<?> clazz = Class.forName(className);
-                System.out.println("");
 
                 //1.什么样的类要被初始化？
                 //2.加了注解的类怎么判断？
@@ -276,6 +276,8 @@ public class DispatcherServlet extends HttpServlet {
                     continue;
                 }
             }
+
+            System.out.println(" ioc : "+ ioc);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -297,7 +299,7 @@ public class DispatcherServlet extends HttpServlet {
      */
     private void doScannerClass(String scanPackage) {
         //由包路径com.tianhy.controller 转换为文件路径,就是把 . 替换成 /
-        //转义的意义在于，java中的路径为字符串，无法识别是否为路径 \\
+        // \\: 转义的意义在于，java中的路径为字符串，无法识别是否为路径
         URL url = this.getClass().getClassLoader().getResource("/" + scanPackage.replaceAll("\\.", "/"));
         File classPath = new File(url.getFile());
         //F:\StudyWorkSpaces\Spring-v1\target\classes
@@ -346,11 +348,15 @@ public class DispatcherServlet extends HttpServlet {
     //从url获取到的参数都是string类型,http基于字符串
     //类型转换
     public Object convert(Class<?> type, String value) {
+        if(String.class == type){
+            return value;
+        }
         if (Integer.class == type) {
             return Integer.valueOf(value);
         } else if (Double.class == type) {
             return Double.valueOf(value);
         }
+
         return value;
     }
 
@@ -402,6 +408,8 @@ public class DispatcherServlet extends HttpServlet {
                     }
                 }
             }
+
+
             /**
              * req与resp参数
              */
